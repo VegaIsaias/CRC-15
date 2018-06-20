@@ -104,3 +104,82 @@ char* readValidation(char* inputData, char* fileName) {
     
 }
 
+// READ FILE AND STORE IN ARRAY AND RETURN POINTER TO IT //
+char* readInput(char* inputData, char* fileName) {
+    int x = 0; char pad = '.'; int breaker = 0;
+    long fileLen;
+    // Open file
+    FILE* dataFile = fopen(fileName, "r");
+    if (dataFile) {
+        fseek(dataFile, 0L, SEEK_END);
+        fileLen = ftell(dataFile);
+        rewind(dataFile);
+
+        // Allocate memeory
+        inputData = calloc(MAX_CHARS, sizeof(char));
+        if (inputData == NULL) {
+            printf("Was not able to allocate enough memory.\n");
+            return 0;
+        }
+        
+        // Read data
+        fread(inputData, fileLen, 1, dataFile);
+        
+        while (breaker < MAX_CHARS) {
+            printf("%c", inputData[breaker]);
+            if (breaker % (MAX_CHAR_LINE) == 0 && breaker != 0) {
+                printf("\n");
+            }
+            breaker++;
+        }
+        
+        while (inputData[x] != 10) {
+            x++;
+        }
+        
+        // Padding
+        while (x < MAX_CHARS) {
+            inputData[x] = pad;
+            x++;
+        }
+        
+        // Close file and return pointer data
+        fclose(dataFile);
+        
+    // Input Stream exception handling
+    } else {
+        printf("File was not able to open.\n");
+        exit(0);
+    }
+    return inputData;
+}
+
+// STORE BINARY REPRESENTATION OF HEX VALUE INTO ARRAY //
+unsigned int* hexBin(unsigned int* binary, char hex) {
+    int x; int value = 8;
+    binary = calloc(BITS, sizeof(unsigned int));
+    
+    // Storing bin rep of hex value
+    for (x = 7; x >= 0; --x) {
+        (hex & (1 << x)) ? (binary[value++] = 1) : (binary[value++] = 0);
+    }
+    return binary;
+}
+
+// CONVERT HEX DATA TO ITS BINARY EQUIVALENT, 1 HEX = 16 BITS //
+unsigned int* prepareDividend(char* inputData, unsigned int* dividend) {
+    
+    // Prepare memory
+    dividend = calloc(D_SIZE, sizeof(unsigned int));
+    unsigned int* binRep = NULL;
+    
+    // Append hex to binary as a string
+    for (int x = 0; x < MAX_CHARS; x++) {
+        binRep = hexBin(binRep, inputData[x]);
+        append(binRep, dividend, x);
+        free(binRep); binRep = NULL;
+    }
+    
+    return dividend;
+}
+
