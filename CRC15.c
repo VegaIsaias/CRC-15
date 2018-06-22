@@ -183,3 +183,101 @@ unsigned int* prepareDividend(char* inputData, unsigned int* dividend) {
     return dividend;
 }
 
+// APPEND BINARY VALUE TO DIVIDENT //
+void append(unsigned int* binRep, unsigned int* dividend, int position) {
+    int binIndex = 0;
+    for (int x = position * BITS; x < (position + 1) * BITS; x++) {
+        dividend[x] = binRep[binIndex++];
+    }
+}
+
+// GIVEN CRC POLY, AND PADDED DIVIDEND, RUN CRCHECK //
+void runCRC(char* inputData, unsigned int* dividend, unsigned int poly[]) {
+    
+    unsigned int* result = NULL;
+    unsigned int* passedBits = NULL; 
+    
+    unsigned int* tmp = NULL; tmp = calloc(BITS, sizeof(unsigned int));
+    int divIndex = 0; int remIndex = 0; int printIndex = 0; int y = 0;
+    
+    // Running CRC calculation
+    for (int x = divIndex; x < D_SIZE; ) {
+        
+        // Printing line to CRC
+        for (y = printIndex; y < printIndex + MAX_CHAR_LINE; y++) {
+            printf("%c", inputData[y]);
+        }
+        
+        // Updating index for new line to print
+        printIndex = y;
+        
+        if (divIndex != 7176) {
+            printf(" - ");
+        }
+        
+        
+        int tmp = x;
+
+        result = getPassBits(result, dividend, &divIndex);
+
+        int sigbits = getSigBits(result);
+        
+        if (sigbits < BITS) {
+            fixBits(result, dividend, &divIndex, sigbits);
+
+        } else {
+            // XOR with poly
+            result = XOR(result, result, poly);
+        }
+        
+        
+        // Run until dividend is exhausted
+        while (divIndex < tmp + (MAX_CHAR_LINE * BITS)) {
+            
+            int sigbits = getSigBits(result);
+            
+            // If left most 1 is not at index 0, drop needed bits from dv
+            if (sigbits < BITS) {
+                remIndex = divIndex;
+                fixBits(result, dividend, &divIndex, sigbits);
+                for (int x = 0; x < BITS; x++) {
+                }
+            } else {
+                result = XOR(result, result, poly);
+                for (int x = 0; x < BITS; x++) {
+                }
+            }
+        }
+        
+        // Checking remainder
+        int sigBits = getSigBits(result);
+        if (sigBits == BITS) {
+            result = XOR(result, result, poly);
+        }
+
+        // CRC progress
+        unsigned int* convertedResult = NULL;
+        convertedResult = resultToHex(result);
+        
+        if (divIndex > 7176) {
+            printf(" - ");
+        }
+        
+        // Print Progress
+        for (int x = 0; x < 8; x++) {
+            printf("%d", convertedResult[x]);
+        }
+        printf("\n");    
+        
+        if (divIndex > 7176) {
+            printf("\nCRC15 result : ");
+            for (int x = 0; x < 8; x++) {
+                printf("%d", convertedResult[x]);
+            }
+        }
+
+        x = divIndex;
+        
+        free(passedBits); passedBits = NULL;
+    }
+}
