@@ -371,3 +371,10 @@ void validateCRC(char* inputData, unsigned int* dividend, unsigned int poly[]) {
     }
 }
 
+// XOR THE BIN REP OF HEX WITH POLYNOMIAL, RETURN RESULT //
+unsigned int* XOR(unsigned int* result, unsigned int* binRep, unsigned int poly[]) {
+    for (int x = 0; x < BITS; x++) {
+        result[x] = binRep[x] ^ poly[x];
+    }
+    return result;
+}
