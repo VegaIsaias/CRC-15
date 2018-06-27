@@ -283,6 +283,7 @@ void runCRC(char* inputData, unsigned int* dividend, unsigned int poly[]) {
 }
 
 
+// Completes a redundency check 
 void validateCRC(char* inputData, unsigned int* dividend, unsigned int poly[]) {
     
     unsigned int* result = NULL;
@@ -369,3 +370,4 @@ void validateCRC(char* inputData, unsigned int* dividend, unsigned int poly[]) {
         free(passedBits); passedBits = NULL;
     }
 }
+
