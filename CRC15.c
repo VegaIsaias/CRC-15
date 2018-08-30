@@ -378,3 +378,114 @@ unsigned int* XOR(unsigned int* result, unsigned int* binRep, unsigned int poly[
     }
     return result;
 }
+
+// RETURNS NUMBER OF BITS THAT WILL BE USED FOR NEXT XOR RESULT //
+unsigned int getSigBits(unsigned int* result) {
+    int count = 0; int index;
+    for (index = 0; index < BITS; index++) {
+        if (result[index] == 1) {
+            break;
+        }
+    }
+    count = BITS - index;
+    return count;
+}
+
+// SHIFT SIGNIFICANT BITS AND COMPLETE BITS FROM DIVIDEND //
+void fixBits(unsigned int* result, unsigned int* dividend, int* position, int numSigBits) {
+    unsigned int* tmp = NULL;
+    tmp = calloc(BITS, sizeof(unsigned int));
+    int sigBits = getSigBits(result); int x, i; int sigIndex = sigBits;
+    
+    // first arrange new result with most sig bit at index 0
+    for (x = 0; x < sigBits; x++) {
+        
+        tmp[x] = result[BITS - sigIndex]; sigIndex--;
+    }
+    
+    // complete new result array by dropping as many bits needed from dividend
+    for (i = *position; i < *position + (BITS - numSigBits); i++) {
+        if (dividend[x]) {
+            tmp[x] = dividend[i]; x++;
+        }
+    }
+    
+    // Update result
+    for (int x = 0; x < BITS; x++) {
+        result[x] = tmp[x];
+    }
+    free(tmp); tmp = NULL;
+    
+    // Position of next bit to XOR
+    *position = i;
+}
+
+// RETURNS THE CURRENT 16 BITS OF DIVIDEND TO XOR //
+unsigned int* getPassBits(unsigned int* passBits,unsigned int* dividend, int* position) {
+    passBits = calloc(BITS, sizeof(unsigned int)); int index = 0; int x;
+    for (x = *position; x < (*position + BITS); x++) {
+        if (x < D_SIZE) {
+            passBits[index] = dividend[x];
+        }
+        index++;
+        
+    }
+    // Updating position
+    *position = x;
+
+    return passBits;
+}
+
+// CONVERTS 4 BITS TO DECIMAL //
+unsigned int bintoDec(unsigned int* binary, int* index) {
+    int letter = 0;
+    
+    // Convert 4 bit to decimal
+    int decIndex = 0;
+    for (decIndex = *index; decIndex < (*index + 4); decIndex++) {
+        letter = letter * 2 + binary[decIndex];
+    }
+    // update index
+    *index = decIndex;
+
+    return letter;
+}
+
+// CONVERT 16 BITS TO HEX //
+unsigned int* resultToHex(unsigned int* result) {
+    unsigned int* convResult = NULL; convResult = calloc(8, sizeof(unsigned int));
+    int resIndex; int convResIndex = 4;
+    
+    for (resIndex = 0;  resIndex < BITS; ) {
+        convResult[convResIndex] = bintoDec(result, &resIndex);
+        switch (convResult[convResIndex]) {
+            case 10:
+                convResult[convResIndex] = 'a';
+                break;
+            case 11:
+                convResult[convResIndex] = 'b';
+                break;
+            case 12:
+                convResult[convResIndex] = 'c';
+                break;
+            case 13:
+                convResult[convResIndex] = 'd';
+                break;
+            case 14:
+                convResult[convResIndex] = 'e';
+                break;
+            case 15:
+                convResult[convResIndex] = 'f';
+                break;
+            default:
+                break;
+        }
+        convResIndex++;
+    }
+
+    for (int x = 0 ; x < 8; x++) {
+        printf("%d", convResult[x]);
+    }
+    
+    return convResult;
+}
